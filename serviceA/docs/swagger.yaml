@@ -1,0 +1,80 @@
+basePath: /
+definitions:
+  entities.CepRequestDto:
+    properties:
+      cep:
+        type: string
+    type: object
+  entities.CustomErrors:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  entities.ViaCepDto:
+    properties:
+      bairro:
+        type: string
+      cep:
+        type: string
+      complemento:
+        type: string
+      ddd:
+        type: string
+      estado:
+        type: string
+      gia:
+        type: string
+      ibge:
+        type: string
+      localidade:
+        type: string
+      logradouro:
+        type: string
+      regiao:
+        type: string
+      siafi:
+        type: string
+      uf:
+        type: string
+      unidade:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: Tudo Azul Temperaturas
+  title: Consulta CEP
+  version: "1.0"
+paths:
+  /consulta-cep:
+    post:
+      consumes:
+      - application/json
+      description: Consulta dados do CEP fornecido via JSON no corpo da requisição
+      parameters:
+      - description: CEP Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entities.CepRequestDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.ViaCepDto'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/entities.CustomErrors'
+        "422":
+          description: Invalid Zipcode
+          schema:
+            $ref: '#/definitions/entities.CustomErrors'
+      summary: Consulta CEP
+      tags:
+      - Labs-Two
+swagger: "2.0"

@@ -1,0 +1,123 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Tudo Azul Temperaturas",
+        "title": "Consulta CEP",
+        "contact": {},
+        "version": "1.0"
+    },
+    "basePath": "/",
+    "paths": {
+        "/consulta-cep": {
+            "post": {
+                "description": "Consulta dados do CEP fornecido via JSON no corpo da requisição",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Labs-Two"
+                ],
+                "summary": "Consulta CEP",
+                "parameters": [
+                    {
+                        "description": "CEP Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entities.CepRequestDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entities.ViaCepDto"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/entities.CustomErrors"
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid Zipcode",
+                        "schema": {
+                            "$ref": "#/definitions/entities.CustomErrors"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "entities.CepRequestDto": {
+            "type": "object",
+            "properties": {
+                "cep": {
+                    "type": "string"
+                }
+            }
+        },
+        "entities.CustomErrors": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "entities.ViaCepDto": {
+            "type": "object",
+            "properties": {
+                "bairro": {
+                    "type": "string"
+                },
+                "cep": {
+                    "type": "string"
+                },
+                "complemento": {
+                    "type": "string"
+                },
+                "ddd": {
+                    "type": "string"
+                },
+                "estado": {
+                    "type": "string"
+                },
+                "gia": {
+                    "type": "string"
+                },
+                "ibge": {
+                    "type": "string"
+                },
+                "localidade": {
+                    "type": "string"
+                },
+                "logradouro": {
+                    "type": "string"
+                },
+                "regiao": {
+                    "type": "string"
+                },
+                "siafi": {
+                    "type": "string"
+                },
+                "uf": {
+                    "type": "string"
+                },
+                "unidade": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

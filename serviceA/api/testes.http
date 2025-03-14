@@ -1,0 +1,17 @@
+### Teste com Sucesso
+POST http://localhost:8080/consulta-cep
+Accept: application/json
+Content-Type: application/json
+
+{
+  "cep": "06465-135"
+}
+
+### Teste com Erro
+POST http://localhost:8080/consulta-cep
+Accept: application/json
+Content-Type: application/json
+
+{
+  "cep": "01000-000"
+}
