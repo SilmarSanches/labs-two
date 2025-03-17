@@ -19,7 +19,7 @@ func main() {
         httpServer := webserver.NewWebServer(NewConfig())
 		httpServer.AddHandler("GET", "/swagger/*", httpSwagger.WrapHandler)
 		httpServer.AddHandler("POST", "/consulta-cep", getTemp.HandleLabsTwo)
-		fmt.Println("HTTP server running at port 8080")
+		fmt.Println("HTTP server is running")
 		httpServer.Start()
     }()
 

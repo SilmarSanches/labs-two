@@ -1,0 +1,17 @@
+### Teste com Sucesso
+POST http://localhost:8081/consulta-tempo
+Accept: application/json
+Content-Type: application/json
+
+{
+  "location": "São Paulo"
+}
+
+### Teste com Erro
+POST http://localhost:8081/consulta-tempo
+Accept: application/json
+Content-Type: application/json
+
+{
+  "location": "Abababab"
+}

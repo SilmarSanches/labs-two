@@ -16,6 +16,20 @@
             },
             "args": [],
             "buildFlags": "-gcflags=all='-N -l'"
+        },
+        {
+            "name": "Debug Service B",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/serviceB/cmd",
+            "env": {
+                "PORT": "8081",
+                "URL_TEMPO": "https://api.weatherapi.com/v1",
+                "API_KEY_TEMPO": "3baa5b20172b4baf91c185158251003"
+            },
+            "args": [],
+            "buildFlags": "-gcflags=all='-N -l'"
         }
     ]
 }
