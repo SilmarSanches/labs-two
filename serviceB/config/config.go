@@ -7,6 +7,7 @@ type AppSettings struct {
 	UrlCep      string
 	UrlTempo    string
 	TempoApiKey string
+	UrlZipkin   string
 }
 
 func ProvideConfig() *AppSettings {
@@ -32,11 +33,13 @@ func LoadConfig() (*AppSettings, error) {
 	viper.SetDefault("URL_TEMPO", "")
 	viper.SetDefault("PORT", "")
 	viper.SetDefault("API_KEY_TEMPO", "")
+	viper.SetDefault("URL_ZIPKIN", "")
 
 	appConfig := &AppSettings{
-		Port:     viper.GetString("PORT"),
-		UrlTempo: viper.GetString("URL_TEMPO"),
+		Port:        viper.GetString("PORT"),
+		UrlTempo:    viper.GetString("URL_TEMPO"),
 		TempoApiKey: viper.GetString("API_KEY_TEMPO"),
+		UrlZipkin:   viper.GetString("URL_ZIPKIN"),
 	}
 
 	return appConfig, nil

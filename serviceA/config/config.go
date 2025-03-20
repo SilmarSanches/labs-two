@@ -3,9 +3,10 @@ package config
 import "github.com/spf13/viper"
 
 type AppSettings struct {
-	Port     string
-	UrlCep   string
-	UrlTempo string
+	Port      string
+	UrlCep    string
+	UrlTempo  string
+	UrlZipkin string
 }
 
 func ProvideConfig() *AppSettings {
@@ -31,11 +32,13 @@ func LoadConfig() (*AppSettings, error) {
 	viper.SetDefault("PORT", "")
 	viper.SetDefault("URL_CEP", "")
 	viper.SetDefault("URL_TEMPO", "")
+	viper.SetDefault("URL_ZIPKIN", "")
 
 	appConfig := &AppSettings{
-		Port:   viper.GetString("PORT"),
-		UrlCep: viper.GetString("URL_CEP"),
+		Port:     viper.GetString("PORT"),
+		UrlCep:   viper.GetString("URL_CEP"),
 		UrlTempo: viper.GetString("URL_TEMPO"),
+		UrlZipkin: viper.GetString("URL_ZIPKIN"),
 	}
 
 	return appConfig, nil
