@@ -1,4 +1,4 @@
-// go:build wireinject
+//go:build wireinject
 // +build wireinject
 
 package main
@@ -6,6 +6,7 @@ package main
 import (
 	"labs-two-service-a/config"
 	"labs-two-service-a/internal/infra/services"
+	"labs-two-service-a/internal/infra/tracing"
 	"labs-two-service-a/internal/infra/web"
 	"labs-two-service-a/internal/usecases"
 
@@ -15,24 +16,35 @@ import (
 var ProviderConfig = wire.NewSet(config.ProvideConfig)
 
 var ProviderHttpClient = wire.NewSet(
-    services.NewHttpClient,
+	services.NewHttpClient,
 )
 
 var ProviderCep = wire.NewSet(
-    services.NewServiceCep,
-    wire.Bind(new(services.ServiceCepInterface), new(*services.ServiceCep)),
+	services.NewServiceCep,
+	wire.Bind(new(services.ServiceCepInterface), new(*services.ServiceCep)),
 )
 
 var ProviderTempo = wire.NewSet(
-    services.NewServiceTempo,
-    wire.Bind(new(services.ServiceTempoInterface), new(*services.ServiceTempo)),
+	services.NewServiceTempo,
+	wire.Bind(new(services.ServiceTempoInterface), new(*services.ServiceTempo)),
+)
+
+var ProviderTracingForHandler = wire.NewSet(
+	tracing.ProvideTracingConfig,
+	tracing.ProvideTracingProvider,
+)
+
+var ProviderTracingWithCleanup = wire.NewSet(
+	tracing.ProvideTracingConfig,
+	tracing.ProvideTracingProviderWithCleanup,
 )
 
 var ProviderGlobal = wire.NewSet(
-    ProviderHttpClient,
-    ProviderConfig,
-    ProviderTempo,
-    ProviderCep,
+	ProviderHttpClient,
+	ProviderConfig,
+	ProviderTempo,
+	ProviderCep,
+	ProviderTracingForHandler,
 )
 
 var ProviderUseCase = wire.NewSet(
@@ -40,7 +52,9 @@ var ProviderUseCase = wire.NewSet(
 	wire.Bind(new(usecases.GetCepUseCaseInterface), new(*usecases.GetCepUseCase)),
 )
 
-var ProviderHandler = wire.NewSet(web.NewGetCepHandler)
+var ProviderHandler = wire.NewSet(
+	web.NewGetCepHandler,
+)
 
 func NewConfig() *config.AppSettings {
 	wire.Build(ProviderConfig)
@@ -48,11 +62,16 @@ func NewConfig() *config.AppSettings {
 }
 
 func NewGetCepUseCase() *usecases.GetCepUseCase {
-    wire.Build(ProviderGlobal, ProviderUseCase)
-    return &usecases.GetCepUseCase{}
+	wire.Build(ProviderGlobal, ProviderUseCase)
+	return &usecases.GetCepUseCase{}
 }
 
 func NewGetCepHandler() *web.GetCepHandler {
-    wire.Build(ProviderGlobal, ProviderUseCase, ProviderHandler)
-    return &web.GetCepHandler{}
+	wire.Build(ProviderGlobal, ProviderUseCase, ProviderHandler)
+	return &web.GetCepHandler{}
+}
+
+func InitializeTracing() (*tracing.TracingProvider, func()) {
+	wire.Build(ProviderConfig, ProviderTracingWithCleanup)
+	return nil, nil
 }

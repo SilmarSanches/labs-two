@@ -10,6 +10,7 @@ import (
 	"github.com/google/wire"
 	"labs-two-service-a/config"
 	"labs-two-service-a/internal/infra/services"
+	"labs-two-service-a/internal/infra/tracing"
 	"labs-two-service-a/internal/infra/web"
 	"labs-two-service-a/internal/usecases"
 )
@@ -30,7 +31,9 @@ func NewGetCepUseCase() *usecases.GetCepUseCase {
 	httpClient := services.NewHttpClient()
 	serviceCep := services.NewServiceCep(httpClient, appSettings)
 	serviceTempo := services.NewServiceTempo(httpClient, appSettings)
-	getCepUseCase := usecases.NewGetCepUseCase(appSettings, serviceCep, serviceTempo)
+	tracingConfig := tracing.ProvideTracingConfig(appSettings)
+	tracingProvider := tracing.ProvideTracingProvider(tracingConfig)
+	getCepUseCase := usecases.NewGetCepUseCase(appSettings, serviceCep, serviceTempo, tracingProvider)
 	return getCepUseCase
 }
 
@@ -39,9 +42,20 @@ func NewGetCepHandler() *web.GetCepHandler {
 	httpClient := services.NewHttpClient()
 	serviceCep := services.NewServiceCep(httpClient, appSettings)
 	serviceTempo := services.NewServiceTempo(httpClient, appSettings)
-	getCepUseCase := usecases.NewGetCepUseCase(appSettings, serviceCep, serviceTempo)
-	getCepHandler := web.NewGetCepHandler(appSettings, getCepUseCase, serviceCep)
+	tracingConfig := tracing.ProvideTracingConfig(appSettings)
+	tracingProvider := tracing.ProvideTracingProvider(tracingConfig)
+	getCepUseCase := usecases.NewGetCepUseCase(appSettings, serviceCep, serviceTempo, tracingProvider)
+	getCepHandler := web.NewGetCepHandler(appSettings, getCepUseCase, serviceCep, tracingProvider)
 	return getCepHandler
+}
+
+func InitializeTracing() (*tracing.TracingProvider, func()) {
+	appSettings := config.ProvideConfig()
+	tracingConfig := tracing.ProvideTracingConfig(appSettings)
+	tracingProvider, cleanup := tracing.ProvideTracingProviderWithCleanup(tracingConfig)
+	return tracingProvider, func() {
+		cleanup()
+	}
 }
 
 // wire.go:
@@ -54,11 +68,16 @@ var ProviderCep = wire.NewSet(services.NewServiceCep, wire.Bind(new(services.Ser
 
 var ProviderTempo = wire.NewSet(services.NewServiceTempo, wire.Bind(new(services.ServiceTempoInterface), new(*services.ServiceTempo)))
 
+var ProviderTracingForHandler = wire.NewSet(tracing.ProvideTracingConfig, tracing.ProvideTracingProvider)
+
+var ProviderTracingWithCleanup = wire.NewSet(tracing.ProvideTracingConfig, tracing.ProvideTracingProviderWithCleanup)
+
 var ProviderGlobal = wire.NewSet(
 	ProviderHttpClient,
 	ProviderConfig,
 	ProviderTempo,
 	ProviderCep,
+	ProviderTracingForHandler,
 )
 
 var ProviderUseCase = wire.NewSet(usecases.NewGetCepUseCase, wire.Bind(new(usecases.GetCepUseCaseInterface), new(*usecases.GetCepUseCase)))

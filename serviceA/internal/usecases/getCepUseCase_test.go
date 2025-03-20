@@ -5,6 +5,7 @@ import (
 	"errors"
 	"labs-two-service-a/config"
 	"labs-two-service-a/internal/entities"
+	"labs-two-service-a/internal/infra/tracing"
 	"testing"
 
 	"github.com/stretchr/testify/mock"
@@ -34,8 +35,11 @@ func TestGetCep_Success(t *testing.T) {
 	mockViaCepService := new(MockViaCepService)
 	mockTempoService := new(MockTempoService)
 	appConfig := &config.AppSettings{}
+	tracingProvider, _, _ := tracing.NewTracingProvider(tracing.TracingConfig{
+		ZipkinURL:   "http://localhost:9411/api/v2/spans",
+		ServiceName: "test-service",})
 
-	useCase := NewGetCepUseCase(appConfig, mockViaCepService, mockTempoService)
+	useCase := NewGetCepUseCase(appConfig, mockViaCepService, mockTempoService, tracingProvider)
 
 	cep := "01001-000"
 	cidade := "São Paulo"
@@ -48,7 +52,7 @@ func TestGetCep_Success(t *testing.T) {
 	}, nil)
 
 	// Act
-	result, err := useCase.GetTempoPorCep(cep)
+	result, err := useCase.GetTempoPorCep(context.Background(),cep)
 
 	// Assert
 	require.NoError(t, err)
@@ -64,14 +68,17 @@ func TestGetTempo_CepNotFount(t *testing.T) {
 	mockViaCepService := new(MockViaCepService)
 	mockTempoService := new(MockTempoService)
 	appConfig := &config.AppSettings{}
+	tracingProvider, _, _ := tracing.NewTracingProvider(tracing.TracingConfig{
+		ZipkinURL:   "http://localhost:9411/api/v2/spans",
+		ServiceName: "test-service",})
 
-	useCase := NewGetCepUseCase(appConfig, mockViaCepService, mockTempoService)
+	useCase := NewGetCepUseCase(appConfig, mockViaCepService, mockTempoService, tracingProvider)
 
 	cep := "00000-000"
 	mockViaCepService.On("GetCep", mock.Anything, cep).Return(entities.ViaCepDto{}, errors.New("cep not found"))
 
 	// Act
-	_, err := useCase.GetTempoPorCep(cep)
+	_, err := useCase.GetTempoPorCep(context.Background(), cep)
 
 	// Assert
 	require.Error(t, err)

@@ -13,15 +13,18 @@ import (
 // @description Tudo Azul Temperaturas
 // @BasePath /
 func main() {
+	tracingProvider, cleanup := InitializeTracing()
+	defer cleanup()
+
 	getTemp := NewGetCepHandler()
 
 	go func() {
-        httpServer := webserver.NewWebServer(NewConfig())
+		httpServer := webserver.NewWebServer(NewConfig(), tracingProvider)
 		httpServer.AddHandler("GET", "/swagger/*", httpSwagger.WrapHandler)
 		httpServer.AddHandler("POST", "/consulta-cep", getTemp.HandleLabsTwo)
 		fmt.Println("HTTP server is running")
 		httpServer.Start()
-    }()
+	}()
 
-    select {} 
+	select {}
 }

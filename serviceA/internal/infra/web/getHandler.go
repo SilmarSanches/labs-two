@@ -5,6 +5,7 @@ import (
 	"labs-two-service-a/config"
 	"labs-two-service-a/internal/entities"
 	"labs-two-service-a/internal/infra/services"
+	"labs-two-service-a/internal/infra/tracing"
 	"labs-two-service-a/internal/usecases"
 	"net/http"
 )
@@ -13,13 +14,15 @@ type GetCepHandler struct {
 	config              *config.AppSettings
 	GetCepUseCase       usecases.GetCepUseCaseInterface
 	ServiceCepInterface services.ServiceCepInterface
+	tracingProvider     *tracing.TracingProvider
 }
 
-func NewGetCepHandler(appConfig *config.AppSettings, getCepUseCase usecases.GetCepUseCaseInterface, serviceCep services.ServiceCepInterface) *GetCepHandler {
+func NewGetCepHandler(appConfig *config.AppSettings, getCepUseCase usecases.GetCepUseCaseInterface, serviceCep services.ServiceCepInterface, tracingProvider *tracing.TracingProvider) *GetCepHandler {
 	return &GetCepHandler{
 		config:              appConfig,
 		GetCepUseCase:       getCepUseCase,
 		ServiceCepInterface: serviceCep,
+		tracingProvider:     tracingProvider,
 	}
 }
 
@@ -35,14 +38,17 @@ func NewGetCepHandler(appConfig *config.AppSettings, getCepUseCase usecases.GetC
 // @Failure 422 {object} entities.CustomErrors "Invalid Zipcode"
 // @Router /consulta-cep [post]
 func (h *GetCepHandler) HandleLabsTwo(w http.ResponseWriter, r *http.Request) {
-	var req entities.CepRequestDto
-    err := json.NewDecoder(r.Body).Decode(&req)
-    if err != nil {
-        http.Error(w, "Invalid request body", http.StatusBadRequest)
-        return
-    }
+	ctx, span := h.tracingProvider.Tracer.Start(r.Context(), "Consulta CEP")
+	defer span.End()
 
-	response, err := h.GetCepUseCase.GetTempoPorCep(req.Cep)
+	var req entities.CepRequestDto
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	response, err := h.GetCepUseCase.GetTempoPorCep(ctx, req.Cep)
 	if err != nil {
 		customErr, ok := err.(*entities.CustomErrors)
 		if ok {
