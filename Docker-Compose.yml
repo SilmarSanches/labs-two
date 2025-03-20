@@ -1,9 +1,10 @@
 services:
-  serviceA:
+  servicea:
+    image: myapp/servicea:latest 
     build: 
-      context: ./serviceA
+      context: ./servicea
       dockerfile: Dockerfile
-    container_name: serviceA
+    container_name: servicea
     ports:
       - "8080:8080"
     networks:
@@ -11,13 +12,14 @@ services:
     environment:
       - PORT=8080
       - URL_CEP=https://viacep.com.br/ws
-      - URL_TEMPO=http://serviceB:8081
+      - URL_TEMPO=http://serviceb:8081
 
-  serviceB:
+  serviceb:
+    image: myapp/serviceb:latest 
     build: 
-      context: ./serviceB
+      context: ./serviceb
       dockerfile: Dockerfile
-    container_name: serviceB
+    container_name: serviceb
     ports:
       - "8081:8081"
     networks:
