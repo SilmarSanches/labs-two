@@ -1,0 +1,32 @@
+services:
+  serviceA:
+    build: 
+      context: ./serviceA
+      dockerfile: Dockerfile
+    container_name: serviceA
+    ports:
+      - "8080:8080"
+    networks:
+      - app_network
+    environment:
+      - PORT=8080
+      - URL_CEP=https://viacep.com.br/ws
+      - URL_TEMPO=http://serviceB:8081
+
+  serviceB:
+    build: 
+      context: ./serviceB
+      dockerfile: Dockerfile
+    container_name: serviceB
+    ports:
+      - "8081:8081"
+    networks:
+      - app_network
+    environment:
+      - PORT=8081
+      - URL_TEMPO=https://api.weatherapi.com/v1
+      - API_KEY_TEMPO=3baa5b20172b4baf91c185158251003
+
+networks:
+  app_network:
+    driver: bridge
