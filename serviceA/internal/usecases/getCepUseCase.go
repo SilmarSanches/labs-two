@@ -20,7 +20,7 @@ type GetCepUseCase struct {
 	tracingProvider        *tracing.TracingProvider
 }
 
-func NewGetCepUseCase(appConfig *config.AppSettings, viaCepService services.ServiceCepInterface, tempoService services.ServiceTempoInterface, tracingProvider *tracing.TracingProvider,) *GetCepUseCase {
+func NewGetCepUseCase(appConfig *config.AppSettings, viaCepService services.ServiceCepInterface, tempoService services.ServiceTempoInterface, tracingProvider *tracing.TracingProvider) *GetCepUseCase {
 	return &GetCepUseCase{
 		appConfid:              appConfig,
 		ServiceTempo:           tempoService,

@@ -5,27 +5,28 @@ import (
 	"labs-two-service-b/config"
 	"labs-two-service-b/internal/entities"
 	"labs-two-service-b/internal/infra/services"
+	"labs-two-service-b/internal/infra/tracing"
 )
 
 type GetTempoUseCaseInterface interface {
-	GetTempo(cep string) (entities.GetTempoResponseDto, error)
+	GetTempo(ctx context.Context, cep string) (entities.GetTempoResponseDto, error)
 }
 
 type GetTempoUseCase struct {
 	appConfid               *config.AppSettings
+	tracingProvider         *tracing.TracingProvider
 	WeatherServiceInterface services.ServiceTempoInterface
 }
 
-func NewGetTempoUseCase(appConfig *config.AppSettings, weatherService services.ServiceTempoInterface) *GetTempoUseCase {
+func NewGetTempoUseCase(appConfig *config.AppSettings, weatherService services.ServiceTempoInterface, tracingProvider *tracing.TracingProvider) *GetTempoUseCase {
 	return &GetTempoUseCase{
 		appConfid:               appConfig,
 		WeatherServiceInterface: weatherService,
+		tracingProvider:        tracingProvider,
 	}
 }
 
-func (u *GetTempoUseCase) GetTempo(location string) (entities.GetTempoResponseDto, error) {
-	ctx := context.Background()
-
+func (u *GetTempoUseCase) GetTempo(ctx context.Context, location string) (entities.GetTempoResponseDto, error) {
 	isValidLocation := ValidateLocation(location)
 	if !isValidLocation {
 		return entities.GetTempoResponseDto{}, &entities.CustomErrors{
@@ -34,7 +35,10 @@ func (u *GetTempoUseCase) GetTempo(location string) (entities.GetTempoResponseDt
 		}
 	}
 
-	weather, err := u.WeatherServiceInterface.GetTempo(ctx, location)
+	ctxWeather, spanWeather := u.tracingProvider.Tracer.Start(ctx, "GetWeather")
+	defer spanWeather.End()
+
+	weather, err := u.WeatherServiceInterface.GetTempo(ctxWeather, location)
 	if err != nil {
 		return entities.GetTempoResponseDto{}, &entities.CustomErrors{
 			Code:    404,

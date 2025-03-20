@@ -2,6 +2,7 @@ package webserver
 
 import (
 	"labs-two-service-b/config"
+	"labs-two-service-b/internal/infra/tracing"
 	"net/http"
 
 	"github.com/go-chi/chi"
@@ -14,16 +15,18 @@ type Route struct {
 }
 
 type WebServer struct {
-	Router   *chi.Mux
-	conf     *config.AppSettings
-	Handlers map[string][]Route
+	Router          *chi.Mux
+	conf            *config.AppSettings
+	Handlers        map[string][]Route
+	TracingProvider *tracing.TracingProvider
 }
 
-func NewWebServer(conf *config.AppSettings) *WebServer {
+func NewWebServer(conf *config.AppSettings, tracingProvider *tracing.TracingProvider) *WebServer {
 	return &WebServer{
-		Router:   chi.NewRouter(),
-		Handlers: make(map[string][]Route),
-		conf:     conf,
+		Router:          chi.NewRouter(),
+		Handlers:        make(map[string][]Route),
+		conf:            conf,
+		TracingProvider: tracingProvider,
 	}
 }
 

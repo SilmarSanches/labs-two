@@ -5,6 +5,7 @@ import (
 	"labs-two-service-b/config"
 	"labs-two-service-b/internal/entities"
 	"labs-two-service-b/internal/infra/services"
+	"labs-two-service-b/internal/infra/tracing"
 	"labs-two-service-b/internal/usecases"
 	"net/http"
 )
@@ -13,13 +14,15 @@ type GetTempoHandler struct {
 	config                *config.AppSettings
 	GetTempoUseCase       usecases.GetTempoUseCaseInterface
 	ServiceTempoInterface services.ServiceTempoInterface
+	tracingProvider       *tracing.TracingProvider
 }
 
-func NewGetCepHandler(appConfig *config.AppSettings, getTempoUseCase usecases.GetTempoUseCaseInterface, serviceTempo services.ServiceTempoInterface) *GetTempoHandler {
+func NewGetCepHandler(appConfig *config.AppSettings, getTempoUseCase usecases.GetTempoUseCaseInterface, serviceTempo services.ServiceTempoInterface, tracingProvider *tracing.TracingProvider) *GetTempoHandler {
 	return &GetTempoHandler{
 		config:                appConfig,
 		GetTempoUseCase:       getTempoUseCase,
 		ServiceTempoInterface: serviceTempo,
+		tracingProvider:       tracingProvider,
 	}
 }
 
@@ -35,6 +38,9 @@ func NewGetCepHandler(appConfig *config.AppSettings, getTempoUseCase usecases.Ge
 // @Failure 422 {object} entities.CustomErrors "Invalid Zipcode"
 // @Router /consulta-tempo [post]
 func (h *GetTempoHandler) HandleLabsTwo(w http.ResponseWriter, r *http.Request) {
+	ctx, span := h.tracingProvider.Tracer.Start(r.Context(), "Consulta Temperatura")
+	defer span.End()
+
 	var req entities.TempoRequestDto
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
@@ -42,7 +48,7 @@ func (h *GetTempoHandler) HandleLabsTwo(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	response, err := h.GetTempoUseCase.GetTempo(req.Location)
+	response, err := h.GetTempoUseCase.GetTempo(ctx, req.Location)
 	if err != nil {
 		customErr, ok := err.(*entities.CustomErrors)
 		if ok {
