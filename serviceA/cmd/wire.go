@@ -1,4 +1,4 @@
-//go:build wireinject
+// go:build wireinject
 // +build wireinject
 
 package main
@@ -23,9 +23,15 @@ var ProviderCep = wire.NewSet(
     wire.Bind(new(services.ServiceCepInterface), new(*services.ServiceCep)),
 )
 
+var ProviderTempo = wire.NewSet(
+    services.NewServiceTempo,
+    wire.Bind(new(services.ServiceTempoInterface), new(*services.ServiceTempo)),
+)
+
 var ProviderGlobal = wire.NewSet(
     ProviderHttpClient,
     ProviderConfig,
+    ProviderTempo,
     ProviderCep,
 )
 

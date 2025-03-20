@@ -11,8 +11,9 @@
             "mode": "auto",
             "program": "${workspaceFolder}/serviceA/cmd",
             "env": {
-                "PORT": "8080",
-                "URL_CEP":"https://viacep.com.br/ws"
+                "PORT":"8080",
+                "URL_CEP":"https://viacep.com.br/ws",
+                "URL_TEMPO":"https://localhost:8081"
             },
             "args": [],
             "buildFlags": "-gcflags=all='-N -l'"
@@ -25,8 +26,8 @@
             "program": "${workspaceFolder}/serviceB/cmd",
             "env": {
                 "PORT": "8081",
-                "URL_TEMPO": "https://api.weatherapi.com/v1",
-                "API_KEY_TEMPO": "3baa5b20172b4baf91c185158251003"
+                "URL_TEMPO":"https://api.weatherapi.com/v1",
+                "API_KEY_TEMPO":"3baa5b20172b4baf91c185158251003"
             },
             "args": [],
             "buildFlags": "-gcflags=all='-N -l'"

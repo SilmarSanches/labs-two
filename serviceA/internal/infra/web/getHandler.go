@@ -42,7 +42,7 @@ func (h *GetCepHandler) HandleLabsTwo(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-	response, err := h.GetCepUseCase.GetCep(req.Cep)
+	response, err := h.GetCepUseCase.GetTempoPorCep(req.Cep)
 	if err != nil {
 		customErr, ok := err.(*entities.CustomErrors)
 		if ok {

@@ -29,7 +29,8 @@ func NewGetCepUseCase() *usecases.GetCepUseCase {
 	appSettings := config.ProvideConfig()
 	httpClient := services.NewHttpClient()
 	serviceCep := services.NewServiceCep(httpClient, appSettings)
-	getCepUseCase := usecases.NewGetCepUseCase(appSettings, serviceCep)
+	serviceTempo := services.NewServiceTempo(httpClient, appSettings)
+	getCepUseCase := usecases.NewGetCepUseCase(appSettings, serviceCep, serviceTempo)
 	return getCepUseCase
 }
 
@@ -37,7 +38,8 @@ func NewGetCepHandler() *web.GetCepHandler {
 	appSettings := config.ProvideConfig()
 	httpClient := services.NewHttpClient()
 	serviceCep := services.NewServiceCep(httpClient, appSettings)
-	getCepUseCase := usecases.NewGetCepUseCase(appSettings, serviceCep)
+	serviceTempo := services.NewServiceTempo(httpClient, appSettings)
+	getCepUseCase := usecases.NewGetCepUseCase(appSettings, serviceCep, serviceTempo)
 	getCepHandler := web.NewGetCepHandler(appSettings, getCepUseCase, serviceCep)
 	return getCepHandler
 }
@@ -50,9 +52,12 @@ var ProviderHttpClient = wire.NewSet(services.NewHttpClient)
 
 var ProviderCep = wire.NewSet(services.NewServiceCep, wire.Bind(new(services.ServiceCepInterface), new(*services.ServiceCep)))
 
+var ProviderTempo = wire.NewSet(services.NewServiceTempo, wire.Bind(new(services.ServiceTempoInterface), new(*services.ServiceTempo)))
+
 var ProviderGlobal = wire.NewSet(
 	ProviderHttpClient,
 	ProviderConfig,
+	ProviderTempo,
 	ProviderCep,
 )
 

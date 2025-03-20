@@ -9,27 +9,29 @@ import (
 )
 
 type GetCepUseCaseInterface interface {
-	GetCep(cep string) (entities.ViaCepDto, error)
+	GetTempoPorCep(cep string) (entities.TempoResponseDto, error)
 }
 
 type GetCepUseCase struct {
 	appConfid              *config.AppSettings
+	ServiceTempo           services.ServiceTempoInterface
 	ViaCepServiceInterface services.ServiceCepInterface
 }
 
-func NewGetCepUseCase(appConfig *config.AppSettings, viaCepService services.ServiceCepInterface) *GetCepUseCase {
+func NewGetCepUseCase(appConfig *config.AppSettings, viaCepService services.ServiceCepInterface, tempoService services.ServiceTempoInterface) *GetCepUseCase {
 	return &GetCepUseCase{
 		appConfid:              appConfig,
+		ServiceTempo:           tempoService,
 		ViaCepServiceInterface: viaCepService,
 	}
 }
 
-func (u *GetCepUseCase) GetCep(cep string) (entities.ViaCepDto, error) {
+func (u *GetCepUseCase) GetTempoPorCep(cep string) (entities.TempoResponseDto, error) {
 	ctx := context.Background()
 
 	isValidCep := ValidateCEP(cep)
 	if !isValidCep {
-		return entities.ViaCepDto{}, &entities.CustomErrors{
+		return entities.TempoResponseDto{}, &entities.CustomErrors{
 			Code:    422,
 			Message: "invalid zipcode",
 		}
@@ -37,13 +39,21 @@ func (u *GetCepUseCase) GetCep(cep string) (entities.ViaCepDto, error) {
 
 	cepResponse, err := u.ViaCepServiceInterface.GetCep(ctx, cep)
 	if err != nil {
-		return entities.ViaCepDto{}, &entities.CustomErrors{
+		return entities.TempoResponseDto{}, &entities.CustomErrors{
 			Code:    404,
 			Message: "can not find zipcode",
 		}
 	}
 
-	return cepResponse, nil
+	tempoResponse, err := u.ServiceTempo.GetTempo(ctx, cepResponse.Localidade)
+	if err != nil {
+		return entities.TempoResponseDto{}, &entities.CustomErrors{
+			Code:    404,
+			Message: "can not find weather",
+		}
+	}
+
+	return tempoResponse, nil
 }
 
 func ValidateCEP(cep string) bool {

@@ -20,38 +20,58 @@ func (m *MockViaCepService) GetCep(ctx context.Context, cep string) (entities.Vi
 	return args.Get(0).(entities.ViaCepDto), args.Error(1)
 }
 
+type MockTempoService struct {
+	mock.Mock
+}
+
+func (m *MockTempoService) GetTempo(ctx context.Context, cidade string) (entities.TempoResponseDto, error) {
+	args := m.Called(ctx, cidade)
+	return args.Get(0).(entities.TempoResponseDto), args.Error(1)
+}
+
 func TestGetCep_Success(t *testing.T) {
 	// Arrange
 	mockViaCepService := new(MockViaCepService)
+	mockTempoService := new(MockTempoService)
 	appConfig := &config.AppSettings{}
 
-	useCase := NewGetCepUseCase(appConfig, mockViaCepService)
+	useCase := NewGetCepUseCase(appConfig, mockViaCepService, mockTempoService)
 
 	cep := "01001-000"
 	cidade := "São Paulo"
 	mockViaCepService.On("GetCep", mock.Anything, cep).Return(entities.ViaCepDto{Localidade: cidade}, nil)
+	mockTempoService.On("GetTempo", mock.Anything, cidade).Return(entities.TempoResponseDto{
+		City: cidade,
+		Kelvin: 273.15,
+		Celsius: 0,
+		Fahrenheit: 32,
+	}, nil)
 
 	// Act
-	result, err := useCase.GetCep(cep)
+	result, err := useCase.GetTempoPorCep(cep)
 
 	// Assert
 	require.NoError(t, err)
-	require.Equal(t, cidade, result.Localidade)
+	require.Equal(t, cidade, result.City)
+	require.Equal(t, 273.15, result.Kelvin)
+	require.Equal(t, 0.0, result.Celsius)
+	require.Equal(t, 32.0, result.Fahrenheit)
 	mockViaCepService.AssertCalled(t, "GetCep", mock.Anything, cep)
 }
 
 func TestGetTempo_CepNotFount(t *testing.T) {
 	// Arrange
 	mockViaCepService := new(MockViaCepService)
+	mockTempoService := new(MockTempoService)
 	appConfig := &config.AppSettings{}
 
-	useCase := NewGetCepUseCase(appConfig, mockViaCepService)
+	useCase := NewGetCepUseCase(appConfig, mockViaCepService, mockTempoService)
 
-	cep := "01001-000"
-	mockViaCepService.On("GetCep", mock.Anything, cep).Return(entities.ViaCepDto{}, errors.New("CEP not found"))
+	cep := "00000-000"
+	mockViaCepService.On("GetCep", mock.Anything, cep).Return(entities.ViaCepDto{}, errors.New("cep not found"))
 
 	// Act
-	_, err := useCase.GetCep(cep)
+	_, err := useCase.GetTempoPorCep(cep)
 
 	// Assert
 	require.Error(t, err)
