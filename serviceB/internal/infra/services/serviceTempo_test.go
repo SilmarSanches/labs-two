@@ -3,7 +3,7 @@ package services
 import (
 	"context"
 	"io"
-	"labs-two-service-b/config"
+	"labs-two-serviceb/config"
 	"net/http"
 	"strings"
 	"testing"

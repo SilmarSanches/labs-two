@@ -4,11 +4,11 @@
 package main
 
 import (
-	"labs-two-service-b/config"
-	"labs-two-service-b/internal/infra/services"
-	"labs-two-service-b/internal/infra/tracing"
-	"labs-two-service-b/internal/infra/web"
-	"labs-two-service-b/internal/usecases"
+	"labs-two-serviceb/config"
+	"labs-two-serviceb/internal/infra/services"
+    "labs-two-serviceb/internal/infra/tracing"
+	"labs-two-serviceb/internal/infra/web"
+	"labs-two-serviceb/internal/usecases"
 
 	"github.com/google/wire"
 )
@@ -16,12 +16,17 @@ import (
 var ProviderConfig = wire.NewSet(config.ProvideConfig)
 
 var ProviderHttpClient = wire.NewSet(
-	services.NewHttpClient,
+    services.NewHttpClient,
+)
+
+var ProviderCep = wire.NewSet(
+    services.NewServiceCep,
+    wire.Bind(new(services.ServiceCepInterface), new(*services.ServiceCep)),
 )
 
 var ProviderTempo = wire.NewSet(
-	services.NewServiceTempo,
-	wire.Bind(new(services.ServiceTempoInterface), new(*services.ServiceTempo)),
+    services.NewServiceTempo,
+    wire.Bind(new(services.ServiceTempoInterface), new(*services.ServiceTempo)),
 )
 
 var ProviderTracingForHandler = wire.NewSet(
@@ -35,10 +40,11 @@ var ProviderTracingWithCleanup = wire.NewSet(
 )
 
 var ProviderGlobal = wire.NewSet(
-	ProviderHttpClient,
-	ProviderConfig,
-	ProviderTempo,
-	ProviderTracingForHandler,
+    ProviderHttpClient,
+    ProviderConfig,
+    ProviderCep,
+    ProviderTempo,
+    ProviderTracingForHandler,
 )
 
 var ProviderUseCase = wire.NewSet(
@@ -46,7 +52,7 @@ var ProviderUseCase = wire.NewSet(
 	wire.Bind(new(usecases.GetTempoUseCaseInterface), new(*usecases.GetTempoUseCase)),
 )
 
-var ProviderHandler = wire.NewSet(web.NewGetCepHandler)
+var ProviderHandler = wire.NewSet(web.NewGetTempoHandler)
 
 func NewConfig() *config.AppSettings {
 	wire.Build(ProviderConfig)
@@ -54,13 +60,13 @@ func NewConfig() *config.AppSettings {
 }
 
 func NewGetTempUseCase() *usecases.GetTempoUseCase {
-	wire.Build(ProviderGlobal, ProviderUseCase)
-	return &usecases.GetTempoUseCase{}
+    wire.Build(ProviderGlobal, ProviderUseCase)
+    return &usecases.GetTempoUseCase{}
 }
 
 func NewGetTempoHandler() *web.GetTempoHandler {
-	wire.Build(ProviderGlobal, ProviderUseCase, ProviderHandler)
-	return &web.GetTempoHandler{}
+    wire.Build(ProviderGlobal, ProviderUseCase, ProviderHandler)
+    return &web.GetTempoHandler{}
 }
 
 func InitializeTracing() (*tracing.TracingProvider, func()) {

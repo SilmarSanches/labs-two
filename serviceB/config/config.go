@@ -31,6 +31,7 @@ func LoadConfig() (*AppSettings, error) {
 		}
 	}
 
+	viper.SetDefault("URL_CEP", "")
 	viper.SetDefault("URL_TEMPO", "")
 	viper.SetDefault("PORT", "")
 	viper.SetDefault("API_KEY_TEMPO", "")
@@ -39,6 +40,7 @@ func LoadConfig() (*AppSettings, error) {
 
 	appConfig := &AppSettings{
 		Port:        viper.GetString("PORT"),
+		UrlCep:      viper.GetString("URL_CEP"),
 		UrlTempo:    viper.GetString("URL_TEMPO"),
 		TempoApiKey: viper.GetString("API_KEY_TEMPO"),
 		UrlZipkin:   viper.GetString("URL_ZIPKIN"),

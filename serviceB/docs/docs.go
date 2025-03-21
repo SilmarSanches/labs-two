@@ -15,9 +15,9 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/consulta-tempo": {
-            "post": {
-                "description": "Consulta temperatura por cidade",
+        "/get-temp": {
+            "get": {
+                "description": "Consulta a temperatura atual baseada no CEP fornecido",
                 "consumes": [
                     "application/json"
                 ],
@@ -25,37 +25,35 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Labs-Two"
+                    "Labs-Two-ServiceB"
                 ],
-                "summary": "Consulta Temperatura",
+                "summary": "Consulta temperatura baseado no CEP",
                 "parameters": [
                     {
-                        "description": "City Request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/labs-two-service-b_internal_entities.TempoRequestDto"
-                        }
+                        "type": "string",
+                        "description": "CEP",
+                        "name": "cep",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/labs-two-service-b_internal_entities.TempoDto"
+                            "$ref": "#/definitions/labs-two-serviceb_internal_entities.GetTempoResponseDto"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/labs-two-service-b_internal_entities.CustomErrors"
+                            "$ref": "#/definitions/labs-two-serviceb_internal_entities.CustomError"
                         }
                     },
                     "422": {
                         "description": "Invalid Zipcode",
                         "schema": {
-                            "$ref": "#/definitions/labs-two-service-b_internal_entities.CustomErrors"
+                            "$ref": "#/definitions/labs-two-serviceb_internal_entities.CustomError"
                         }
                     }
                 }
@@ -63,113 +61,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "labs-two-service-b_internal_entities.Condition": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "number"
-                },
-                "icon": {
-                    "type": "string"
-                },
-                "text": {
-                    "type": "string"
-                }
-            }
-        },
-        "labs-two-service-b_internal_entities.Current": {
-            "type": "object",
-            "properties": {
-                "cloud": {
-                    "type": "number"
-                },
-                "condition": {
-                    "$ref": "#/definitions/labs-two-service-b_internal_entities.Condition"
-                },
-                "dewpoint_c": {
-                    "type": "number"
-                },
-                "dewpoint_f": {
-                    "type": "number"
-                },
-                "feelslike_c": {
-                    "type": "number"
-                },
-                "feelslike_f": {
-                    "type": "number"
-                },
-                "gust_kph": {
-                    "type": "number"
-                },
-                "gust_mph": {
-                    "type": "number"
-                },
-                "heatindex_c": {
-                    "type": "number"
-                },
-                "heatindex_f": {
-                    "type": "number"
-                },
-                "humidity": {
-                    "type": "number"
-                },
-                "is_day": {
-                    "type": "number"
-                },
-                "last_updated": {
-                    "type": "string"
-                },
-                "last_updated_epoch": {
-                    "type": "integer"
-                },
-                "precip_in": {
-                    "type": "number"
-                },
-                "precip_mm": {
-                    "type": "number"
-                },
-                "pressure_in": {
-                    "type": "number"
-                },
-                "pressure_mb": {
-                    "type": "number"
-                },
-                "temp_c": {
-                    "type": "number"
-                },
-                "temp_f": {
-                    "type": "number"
-                },
-                "uv": {
-                    "type": "number"
-                },
-                "vis_km": {
-                    "type": "number"
-                },
-                "vis_miles": {
-                    "type": "number"
-                },
-                "wind_degree": {
-                    "type": "number"
-                },
-                "wind_dir": {
-                    "type": "string"
-                },
-                "wind_kph": {
-                    "type": "number"
-                },
-                "wind_mph": {
-                    "type": "number"
-                },
-                "windchill_c": {
-                    "type": "number"
-                },
-                "windchill_f": {
-                    "type": "number"
-                }
-            }
-        },
-        "labs-two-service-b_internal_entities.CustomErrors": {
+        "labs-two-serviceb_internal_entities.CustomError": {
             "type": "object",
             "properties": {
                 "code": {
@@ -180,51 +72,17 @@ const docTemplate = `{
                 }
             }
         },
-        "labs-two-service-b_internal_entities.Location": {
+        "labs-two-serviceb_internal_entities.GetTempoResponseDto": {
             "type": "object",
             "properties": {
-                "country": {
-                    "type": "string"
-                },
-                "lat": {
+                "temp_C": {
                     "type": "number"
                 },
-                "localtime": {
-                    "type": "string"
-                },
-                "localtime_epoch": {
-                    "type": "integer"
-                },
-                "lon": {
+                "temp_F": {
                     "type": "number"
                 },
-                "name": {
-                    "type": "string"
-                },
-                "region": {
-                    "type": "string"
-                },
-                "tz_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "labs-two-service-b_internal_entities.TempoDto": {
-            "type": "object",
-            "properties": {
-                "current": {
-                    "$ref": "#/definitions/labs-two-service-b_internal_entities.Current"
-                },
-                "location": {
-                    "$ref": "#/definitions/labs-two-service-b_internal_entities.Location"
-                }
-            }
-        },
-        "labs-two-service-b_internal_entities.TempoRequestDto": {
-            "type": "object",
-            "properties": {
-                "location": {
-                    "type": "string"
+                "temp_K": {
+                    "type": "number"
                 }
             }
         }
@@ -235,10 +93,10 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "",
-	BasePath:         "",
+	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "Consulta Tempo",
-	Description:      "Consulta Temperaturas",
+	Title:            "Tudo Azul API",
+	Description:      "Tudo Azul Temperaturas",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

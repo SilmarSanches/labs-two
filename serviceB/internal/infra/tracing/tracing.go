@@ -2,7 +2,7 @@ package tracing
 
 import (
 	"context"
-	"labs-two-service-b/config"
+	"labs-two-serviceb/config"
 	"log"
 
 	"go.opentelemetry.io/otel"

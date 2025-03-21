@@ -1,10 +1,10 @@
 package entities
 
-type CustomErrors struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
+type CustomError struct {
+	Code    int
+	Message string
 }
 
-func (e *CustomErrors) Error() string {
-	return e.Message
+func (e *CustomError) Error() string {
+    return e.Message
 }

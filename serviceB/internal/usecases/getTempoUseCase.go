@@ -2,10 +2,11 @@ package usecases
 
 import (
 	"context"
-	"labs-two-service-b/config"
-	"labs-two-service-b/internal/entities"
-	"labs-two-service-b/internal/infra/services"
-	"labs-two-service-b/internal/infra/tracing"
+	"labs-two-serviceb/config"
+	"labs-two-serviceb/internal/entities"
+	"labs-two-serviceb/internal/infra/services"
+	"labs-two-serviceb/internal/infra/tracing"
+	"regexp"
 )
 
 type GetTempoUseCaseInterface interface {
@@ -15,35 +16,50 @@ type GetTempoUseCaseInterface interface {
 type GetTempoUseCase struct {
 	appConfid               *config.AppSettings
 	tracingProvider         *tracing.TracingProvider
+	ViaCepServiceInterface  services.ServiceCepInterface
 	WeatherServiceInterface services.ServiceTempoInterface
 }
 
-func NewGetTempoUseCase(appConfig *config.AppSettings, weatherService services.ServiceTempoInterface, tracingProvider *tracing.TracingProvider) *GetTempoUseCase {
+func NewGetTempoUseCase(appConfig *config.AppSettings, viaCepService services.ServiceCepInterface, weatherService services.ServiceTempoInterface, tracingProvider *tracing.TracingProvider) *GetTempoUseCase {
 	return &GetTempoUseCase{
 		appConfid:               appConfig,
+		ViaCepServiceInterface:  viaCepService,
 		WeatherServiceInterface: weatherService,
 		tracingProvider:        tracingProvider,
 	}
 }
 
-func (u *GetTempoUseCase) GetTempo(ctx context.Context, location string) (entities.GetTempoResponseDto, error) {
-	isValidLocation := ValidateLocation(location)
-	if !isValidLocation {
-		return entities.GetTempoResponseDto{}, &entities.CustomErrors{
+func (u *GetTempoUseCase) GetTempo(ctx context.Context, cep string) (entities.GetTempoResponseDto, error) {
+
+	isValidCep := len(cep) == 8 && regexp.MustCompile(`^[0-9]+$`).MatchString(cep)
+	if !isValidCep {
+		return entities.GetTempoResponseDto{}, &entities.CustomError{
 			Code:    422,
-			Message: "invalid location",
+			Message: "invalid zipcode",
 		}
 	}
 
-	ctxWeather, spanWeather := u.tracingProvider.Tracer.Start(ctx, "GetWeather")
-	defer spanWeather.End()
+	ctxCep, spanCep := u.tracingProvider.Tracer.Start(ctx, "GetCep")
+	defer spanCep.End()
 
-	weather, err := u.WeatherServiceInterface.GetTempo(ctxWeather, location)
+	cepResponse, err := u.ViaCepServiceInterface.GetCep(ctxCep, cep)
 	if err != nil {
-		spanWeather.RecordError(err)
-		return entities.GetTempoResponseDto{}, &entities.CustomErrors{
+		spanCep.RecordError(err)
+		return entities.GetTempoResponseDto{}, &entities.CustomError{
 			Code:    404,
-			Message: "can not find location",
+			Message: "can not find zipcode",
+		}
+	}
+
+	ctxTempo, spanTempo := u.tracingProvider.Tracer.Start(ctx, "GetTempo")
+	defer spanTempo.End()
+
+	weather, err := u.WeatherServiceInterface.GetTempo(ctxTempo, cepResponse.Localidade)
+	if err != nil {
+		spanTempo.RecordError(err)
+		return entities.GetTempoResponseDto{}, &entities.CustomError{
+			Code:    404,
+			Message: "can not find temperature",
 		}
 	}
 
@@ -55,12 +71,7 @@ func (u *GetTempoUseCase) GetTempo(ctx context.Context, location string) (entiti
 		Kelvin:     Kelvin,
 		Celsius:    celcius,
 		Fahrenheit: Fahrenheit,
-		City:       location,
 	}
 
 	return result, nil
-}
-
-func ValidateLocation(location string) bool {
-	return len(location) >= 4
 }

@@ -8,15 +8,15 @@ package main
 
 import (
 	"github.com/google/wire"
-	"labs-two-service-b/config"
-	"labs-two-service-b/internal/infra/services"
-	"labs-two-service-b/internal/infra/tracing"
-	"labs-two-service-b/internal/infra/web"
-	"labs-two-service-b/internal/usecases"
+	"labs-two-serviceb/config"
+	"labs-two-serviceb/internal/infra/services"
+	"labs-two-serviceb/internal/infra/tracing"
+	"labs-two-serviceb/internal/infra/web"
+	"labs-two-serviceb/internal/usecases"
 )
 
 import (
-	_ "labs-two-service-b/docs"
+	_ "labs-two-serviceb/docs"
 )
 
 // Injectors from wire.go:
@@ -29,21 +29,23 @@ func NewConfig() *config.AppSettings {
 func NewGetTempUseCase() *usecases.GetTempoUseCase {
 	appSettings := config.ProvideConfig()
 	httpClient := services.NewHttpClient()
+	serviceCep := services.NewServiceCep(httpClient, appSettings)
 	serviceTempo := services.NewServiceTempo(httpClient, appSettings)
 	tracingConfig := tracing.ProvideTracingConfig(appSettings)
 	tracingProvider := tracing.ProvideTracingProvider(tracingConfig)
-	getTempoUseCase := usecases.NewGetTempoUseCase(appSettings, serviceTempo, tracingProvider)
+	getTempoUseCase := usecases.NewGetTempoUseCase(appSettings, serviceCep, serviceTempo, tracingProvider)
 	return getTempoUseCase
 }
 
 func NewGetTempoHandler() *web.GetTempoHandler {
 	appSettings := config.ProvideConfig()
 	httpClient := services.NewHttpClient()
+	serviceCep := services.NewServiceCep(httpClient, appSettings)
 	serviceTempo := services.NewServiceTempo(httpClient, appSettings)
 	tracingConfig := tracing.ProvideTracingConfig(appSettings)
 	tracingProvider := tracing.ProvideTracingProvider(tracingConfig)
-	getTempoUseCase := usecases.NewGetTempoUseCase(appSettings, serviceTempo, tracingProvider)
-	getTempoHandler := web.NewGetCepHandler(appSettings, getTempoUseCase, serviceTempo, tracingProvider)
+	getTempoUseCase := usecases.NewGetTempoUseCase(appSettings, serviceCep, serviceTempo, tracingProvider)
+	getTempoHandler := web.NewGetTempoHandler(appSettings, getTempoUseCase, serviceCep, serviceTempo, tracingProvider)
 	return getTempoHandler
 }
 
@@ -62,6 +64,8 @@ var ProviderConfig = wire.NewSet(config.ProvideConfig)
 
 var ProviderHttpClient = wire.NewSet(services.NewHttpClient)
 
+var ProviderCep = wire.NewSet(services.NewServiceCep, wire.Bind(new(services.ServiceCepInterface), new(*services.ServiceCep)))
+
 var ProviderTempo = wire.NewSet(services.NewServiceTempo, wire.Bind(new(services.ServiceTempoInterface), new(*services.ServiceTempo)))
 
 var ProviderTracingForHandler = wire.NewSet(tracing.ProvideTracingConfig, tracing.ProvideTracingProvider)
@@ -71,10 +75,11 @@ var ProviderTracingWithCleanup = wire.NewSet(tracing.ProvideTracingConfig, traci
 var ProviderGlobal = wire.NewSet(
 	ProviderHttpClient,
 	ProviderConfig,
+	ProviderCep,
 	ProviderTempo,
 	ProviderTracingForHandler,
 )
 
 var ProviderUseCase = wire.NewSet(usecases.NewGetTempoUseCase, wire.Bind(new(usecases.GetTempoUseCaseInterface), new(*usecases.GetTempoUseCase)))
 
-var ProviderHandler = wire.NewSet(web.NewGetCepHandler)
+var ProviderHandler = wire.NewSet(web.NewGetTempoHandler)
