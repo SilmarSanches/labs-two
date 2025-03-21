@@ -28,6 +28,7 @@ services:
       - app_network
     environment:
       - PORT=8081
+      - URL_CEP=https://viacep.com.br/ws
       - URL_TEMPO=https://api.weatherapi.com/v1
       - API_KEY_TEMPO=3baa5b20172b4baf91c185158251003
       - URL_ZIPKIN=http://zipkin:9411/api/v2/spans

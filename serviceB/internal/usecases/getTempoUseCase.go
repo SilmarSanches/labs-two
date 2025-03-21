@@ -71,6 +71,7 @@ func (u *GetTempoUseCase) GetTempo(ctx context.Context, cep string) (entities.Ge
 		Kelvin:     Kelvin,
 		Celsius:    celcius,
 		Fahrenheit: Fahrenheit,
+		City:       cepResponse.Localidade,
 	}
 
 	return result, nil

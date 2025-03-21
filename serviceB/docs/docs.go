@@ -15,8 +15,8 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/get-temp": {
-            "get": {
+        "/consulta-tempo": {
+            "post": {
                 "description": "Consulta a temperatura atual baseada no CEP fornecido",
                 "consumes": [
                     "application/json"
@@ -30,11 +30,13 @@ const docTemplate = `{
                 "summary": "Consulta temperatura baseado no CEP",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "CEP",
-                        "name": "cep",
-                        "in": "query",
-                        "required": true
+                        "description": "Consulta temperatura",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/labs-two-serviceb_internal_entities.CepRequestDto"
+                        }
                     }
                 ],
                 "responses": {
@@ -61,6 +63,14 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "labs-two-serviceb_internal_entities.CepRequestDto": {
+            "type": "object",
+            "properties": {
+                "cep": {
+                    "type": "string"
+                }
+            }
+        },
         "labs-two-serviceb_internal_entities.CustomError": {
             "type": "object",
             "properties": {

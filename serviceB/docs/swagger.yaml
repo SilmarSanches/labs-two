@@ -1,5 +1,10 @@
 basePath: /
 definitions:
+  labs-two-serviceb_internal_entities.CepRequestDto:
+    properties:
+      cep:
+        type: string
+    type: object
   labs-two-serviceb_internal_entities.CustomError:
     properties:
       code:
@@ -22,17 +27,18 @@ info:
   title: Tudo Azul API
   version: "1.0"
 paths:
-  /get-temp:
-    get:
+  /consulta-tempo:
+    post:
       consumes:
       - application/json
       description: Consulta a temperatura atual baseada no CEP fornecido
       parameters:
-      - description: CEP
-        in: query
-        name: cep
+      - description: Consulta temperatura
+        in: body
+        name: request
         required: true
-        type: string
+        schema:
+          $ref: '#/definitions/labs-two-serviceb_internal_entities.CepRequestDto'
       produces:
       - application/json
       responses:

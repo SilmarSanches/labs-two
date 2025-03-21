@@ -47,13 +47,14 @@ func (h *GetTempoHandler) HandleLabsOne(w http.ResponseWriter, r *http.Request) 
 	ctx, span := h.tracingProvider.Tracer.Start(ctx, "HandleConsultaTempo")
 	defer span.End()
 
-	cep := r.URL.Query().Get("cep")
-	if cep == "" {
-		http.Error(w, "cep is required", http.StatusBadRequest)
+	var req entities.CepRequestDto
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	response, err := h.GetTempoUseCase.GetTempo(ctx, cep)
+	response, err := h.GetTempoUseCase.GetTempo(ctx, req.Cep)
 	if err != nil {
 		customErr, ok := err.(*entities.CustomError)
 		if ok {

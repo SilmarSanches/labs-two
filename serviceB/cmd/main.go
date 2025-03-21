@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"labs-two-serviceb/internal/infra/web/webserver"
 
+	_ "labs-two-serviceb/docs"
+
 	httpSwagger "github.com/swaggo/http-swagger"
-	_ "labs-two-serviceb/docs" 
 )
 
 // @title Tudo Azul API
@@ -20,7 +21,7 @@ func main() {
 
 	httpServer := webserver.NewWebServer(NewConfig(), tracingProvider)
 	httpServer.AddHandler("GET", "/swagger/*", httpSwagger.WrapHandler)
-	httpServer.AddHandler("GET", "/get-temp", getTemp.HandleLabsOne)
-	fmt.Println("HTTP server running at port 8080")
+	httpServer.AddHandler("POST", "/consulta-tempo", getTemp.HandleLabsOne)
+	fmt.Println("HTTP server running")
 	httpServer.Start()
 }
