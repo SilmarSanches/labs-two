@@ -7,6 +7,7 @@ import (
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/zipkin"
+	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"go.opentelemetry.io/otel/semconv/v1.21.0"
@@ -76,6 +77,7 @@ func NewTracingProvider(cfg TracingConfig) (*TracingProvider, func(), error) {
 	)
 
 	otel.SetTracerProvider(tp)
+	otel.SetTextMapPropagator(propagation.TraceContext{})
 
 	tracingProvider := &TracingProvider{
 		Tracer: tp.Tracer(cfg.ServiceName),

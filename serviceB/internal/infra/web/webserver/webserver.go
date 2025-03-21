@@ -3,6 +3,7 @@ package webserver
 import (
 	"labs-two-service-b/config"
 	"labs-two-service-b/internal/infra/tracing"
+	"labs-two-service-b/internal/infra/web/middlewares"
 	"net/http"
 
 	"github.com/go-chi/chi"
@@ -36,6 +37,8 @@ func (w *WebServer) AddHandler(method, path string, handler http.HandlerFunc) {
 
 func (w *WebServer) Start() {
 	w.Router.Use(middleware.Logger)
+
+	w.Router.Use(middlewares.TraceMiddleware)
 
 	for path, routes := range w.Handlers {
 		for _, route := range routes {

@@ -14,7 +14,7 @@
                 "PORT":"8080",
                 "URL_CEP":"https://viacep.com.br/ws",
                 "URL_TEMPO":"http://localhost:8081",
-                "URL_ZIPKIN":"http://zipkin:9411/api/v2/spans",
+                "URL_ZIPKIN":"http://localhost:9411/api/v2/spans",
                 "SERVICE_NAME":"service-a"
             },
             "args": [],
@@ -30,7 +30,7 @@
                 "PORT": "8081",
                 "URL_TEMPO":"https://api.weatherapi.com/v1",
                 "API_KEY_TEMPO":"3baa5b20172b4baf91c185158251003",
-                "URL_ZIPKIN":"http://zipkin:9411/api/v2/spans",
+                "URL_ZIPKIN":"http://localhost:9411/api/v2/spans",
                 "SERVICE_NAME":"service-b"
             },
             "args": [],

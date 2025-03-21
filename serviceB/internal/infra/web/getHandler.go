@@ -8,6 +8,9 @@ import (
 	"labs-two-service-b/internal/infra/tracing"
 	"labs-two-service-b/internal/usecases"
 	"net/http"
+
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
 )
 
 type GetTempoHandler struct {
@@ -38,7 +41,8 @@ func NewGetCepHandler(appConfig *config.AppSettings, getTempoUseCase usecases.Ge
 // @Failure 422 {object} entities.CustomErrors "Invalid Zipcode"
 // @Router /consulta-tempo [post]
 func (h *GetTempoHandler) HandleLabsTwo(w http.ResponseWriter, r *http.Request) {
-	ctx, span := h.tracingProvider.Tracer.Start(r.Context(), "Consulta Temperatura")
+	ctx := otel.GetTextMapPropagator().Extract(r.Context(), propagation.HeaderCarrier(r.Header))
+	ctx, span := h.tracingProvider.Tracer.Start(ctx, "HandleConsultaTempo")
 	defer span.End()
 
 	var req entities.TempoRequestDto

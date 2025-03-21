@@ -30,7 +30,9 @@ func NewGetTempUseCase() *usecases.GetTempoUseCase {
 	appSettings := config.ProvideConfig()
 	httpClient := services.NewHttpClient()
 	serviceTempo := services.NewServiceTempo(httpClient, appSettings)
-	getTempoUseCase := usecases.NewGetTempoUseCase(appSettings, serviceTempo)
+	tracingConfig := tracing.ProvideTracingConfig(appSettings)
+	tracingProvider := tracing.ProvideTracingProvider(tracingConfig)
+	getTempoUseCase := usecases.NewGetTempoUseCase(appSettings, serviceTempo, tracingProvider)
 	return getTempoUseCase
 }
 
@@ -38,8 +40,10 @@ func NewGetTempoHandler() *web.GetTempoHandler {
 	appSettings := config.ProvideConfig()
 	httpClient := services.NewHttpClient()
 	serviceTempo := services.NewServiceTempo(httpClient, appSettings)
-	getTempoUseCase := usecases.NewGetTempoUseCase(appSettings, serviceTempo)
-	getTempoHandler := web.NewGetCepHandler(appSettings, getTempoUseCase, serviceTempo)
+	tracingConfig := tracing.ProvideTracingConfig(appSettings)
+	tracingProvider := tracing.ProvideTracingProvider(tracingConfig)
+	getTempoUseCase := usecases.NewGetTempoUseCase(appSettings, serviceTempo, tracingProvider)
+	getTempoHandler := web.NewGetCepHandler(appSettings, getTempoUseCase, serviceTempo, tracingProvider)
 	return getTempoHandler
 }
 

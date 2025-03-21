@@ -40,6 +40,7 @@ func (u *GetTempoUseCase) GetTempo(ctx context.Context, location string) (entiti
 
 	weather, err := u.WeatherServiceInterface.GetTempo(ctxWeather, location)
 	if err != nil {
+		spanWeather.RecordError(err)
 		return entities.GetTempoResponseDto{}, &entities.CustomErrors{
 			Code:    404,
 			Message: "can not find location",

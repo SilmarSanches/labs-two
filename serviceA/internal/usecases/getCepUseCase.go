@@ -6,7 +6,6 @@ import (
 	"labs-two-service-a/internal/entities"
 	"labs-two-service-a/internal/infra/services"
 	"labs-two-service-a/internal/infra/tracing"
-	"regexp"
 )
 
 type GetCepUseCaseInterface interface {
@@ -66,6 +65,6 @@ func (u *GetCepUseCase) GetTempoPorCep(ctx context.Context, cep string) (entitie
 }
 
 func ValidateCEP(cep string) bool {
-	re := regexp.MustCompile(`^\d{5}-\d{3}$`)
-	return re.MatchString(cep)
+	isValid := len(cep) == 8
+	return isValid
 }

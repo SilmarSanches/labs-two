@@ -12,6 +12,9 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
 )
 
 type ServiceTempoInterface interface {
@@ -52,6 +55,8 @@ func (s *ServiceTempo) GetTempo(ctx context.Context, location string) (entities.
 		log.Println("erro ao criar requisição HTTP:", err)
 		return entities.TempoResponseDto{}, err
 	}
+
+	otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(req.Header))
 
 	res, err := s.HttpClient.Do(req)
 	if err != nil {
