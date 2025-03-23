@@ -51,6 +51,13 @@ func (u *GetTempoUseCase) GetTempo(ctx context.Context, cep string) (entities.Ge
 		}
 	}
 
+	if cepResponse.Localidade == "" {
+		return entities.GetTempoResponseDto{}, &entities.CustomError{
+			Code:    404,
+			Message: "can not find zipcode",
+		}
+	}
+
 	ctxTempo, spanTempo := u.tracingProvider.Tracer.Start(ctx, "GetTempo")
 	defer spanTempo.End()
 

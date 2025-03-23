@@ -12,6 +12,9 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
 )
 
 type ServiceConsultaInterface interface {
@@ -46,6 +49,8 @@ func (s *ServiceConsulta) GetTempo(ctx context.Context, cep entities.CepRequestD
 	if err != nil {
 		return entities.TempoResponseDto{}, err
 	}
+
+	otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(req.Header))
 
 	res, err := s.HttpClient.Do(req)
 	if err != nil {

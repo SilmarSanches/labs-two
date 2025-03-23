@@ -11,7 +11,6 @@ import (
 	"log"
 
 	"net/http"
-	"time"
 )
 
 type ServiceCepInterface interface {
@@ -31,9 +30,6 @@ func NewServiceCep(httpClient HttpClient, appConfig *config.AppSettings) *Servic
 }
 
 func (s *ServiceCep) GetCep(ctx context.Context, cep string) (entities.ViaCepDto, error) {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
 	url := fmt.Sprintf("%s/%s/json", s.appConfig.UrlCep, cep)
 	log.Println("url:", url)
 

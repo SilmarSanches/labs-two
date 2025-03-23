@@ -11,7 +11,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"time"
 )
 
 type ServiceTempoInterface interface {
@@ -31,9 +30,6 @@ func NewServiceTempo(httpClient HttpClient, appConfig *config.AppSettings) *Serv
 }
 
 func (s *ServiceTempo) GetTempo(ctx context.Context, cidade string) (entities.TempoDto, error) {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
 	cidadeEncoded := url.QueryEscape(cidade)
 	url := fmt.Sprintf("%s/current.json?q=%s&key=%s", s.appConfig.UrlTempo, cidadeEncoded, s.appConfig.TempoApiKey)
 	log.Println("url:", url)

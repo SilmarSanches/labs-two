@@ -1,17 +1,23 @@
-### Teste com Sucesso
+### Teste de Sucesso - CEP válido
 POST http://localhost:8080/consulta-cep
 Accept: application/json
-Content-Type: application/json
 
 {
-  "cep": "06465-135"
+  "cep": "06465135"
 }
 
-### Teste com Erro
+### Teste de Falha - CEP inválido
 POST http://localhost:8080/consulta-cep
 Accept: application/json
-Content-Type: application/json
 
 {
-  "cep": "01000-000"
+  "cep": "12345-678"
+}
+
+### Teste de Falha - CEP não encontrado
+POST http://localhost:8080/consulta-cep
+Accept: application/json
+
+{
+  "cep": "12345678"
 }

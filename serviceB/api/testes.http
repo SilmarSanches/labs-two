@@ -1,11 +1,23 @@
 ### Teste de Sucesso - CEP válido
-GET http://localhost:8080/get-temp?cep=06465-135
+POST http://localhost:8081/consulta-tempo
 Accept: application/json
 
-### Teste de Falha - CEP inválido (menos de 8 dígitos)
-GET http://localhost:8080/get-temp?cep=12345
+{
+  "cep": "06465135"
+}
+
+### Teste de Falha - CEP inválido
+POST http://localhost:8081/consulta-tempo
 Accept: application/json
+
+{
+  "cep": "12345-678"
+}
 
 ### Teste de Falha - CEP não encontrado
-GET http://localhost:8080/get-temp?cep=00000-000
+POST http://localhost:8081/consulta-tempo
 Accept: application/json
+
+{
+  "cep": "12345678"
+}
