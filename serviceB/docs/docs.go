@@ -85,6 +85,9 @@ const docTemplate = `{
         "labs-two-serviceb_internal_entities.GetTempoResponseDto": {
             "type": "object",
             "properties": {
+                "city": {
+                    "type": "string"
+                },
                 "temp_C": {
                     "type": "number"
                 },

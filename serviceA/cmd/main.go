@@ -16,7 +16,7 @@ func main() {
 	tracingProvider, cleanup := InitializeTracing()
 	defer cleanup()
 
-	getTemp := NewGetCepHandler()
+	getTemp := NewGetConsultaHandler()
 
 	go func() {
 		httpServer := webserver.NewWebServer(NewConfig(), tracingProvider)

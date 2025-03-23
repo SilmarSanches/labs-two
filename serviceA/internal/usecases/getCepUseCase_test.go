@@ -12,42 +12,31 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type MockViaCepService struct {
+type MockConsultaService struct {
 	mock.Mock
 }
 
-func (m *MockViaCepService) GetCep(ctx context.Context, cep string) (entities.ViaCepDto, error) {
+func (m *MockConsultaService) GetTempo(ctx context.Context, cep entities.CepRequestDto) (entities.TempoResponseDto, error) {
 	args := m.Called(ctx, cep)
-	return args.Get(0).(entities.ViaCepDto), args.Error(1)
-}
-
-type MockTempoService struct {
-	mock.Mock
-}
-
-func (m *MockTempoService) GetTempo(ctx context.Context, cidade string) (entities.TempoResponseDto, error) {
-	args := m.Called(ctx, cidade)
 	return args.Get(0).(entities.TempoResponseDto), args.Error(1)
 }
 
-func TestGetCep_Success(t *testing.T) {
+func TestGet_Success(t *testing.T) {
 	// Arrange
-	mockViaCepService := new(MockViaCepService)
-	mockTempoService := new(MockTempoService)
+	mockConsultaService := new(MockConsultaService)
 	appConfig := &config.AppSettings{}
 	tracingProvider, _, _ := tracing.NewTracingProvider(tracing.TracingConfig{
 		ZipkinURL:   "http://localhost:9411/api/v2/spans",
 		ServiceName: "test-service",})
 
-	useCase := NewGetCepUseCase(appConfig, mockViaCepService, mockTempoService, tracingProvider)
+	useCase := NewGetConsultaUseCase(appConfig, mockConsultaService, tracingProvider)
 
-	cep := "01001-000"
+	cep := entities.CepRequestDto{Cep: "01001000"}
 	cidade := "São Paulo"
-	mockViaCepService.On("GetCep", mock.Anything, cep).Return(entities.ViaCepDto{Localidade: cidade}, nil)
-	mockTempoService.On("GetTempo", mock.Anything, cidade).Return(entities.TempoResponseDto{
-		City: cidade,
-		Kelvin: 273.15,
-		Celsius: 0,
+	mockConsultaService.On("GetTempo", mock.Anything, cep).Return(entities.TempoResponseDto{
+		City:       cidade,
+		Kelvin:     273.15,
+		Celsius:    0,
 		Fahrenheit: 32,
 	}, nil)
 
@@ -60,22 +49,21 @@ func TestGetCep_Success(t *testing.T) {
 	require.Equal(t, 273.15, result.Kelvin)
 	require.Equal(t, 0.0, result.Celsius)
 	require.Equal(t, 32.0, result.Fahrenheit)
-	mockViaCepService.AssertCalled(t, "GetCep", mock.Anything, cep)
+	mockConsultaService.AssertCalled(t, "GetTempo", mock.Anything, cep)
 }
 
 func TestGetTempo_CepNotFount(t *testing.T) {
 	// Arrange
-	mockViaCepService := new(MockViaCepService)
-	mockTempoService := new(MockTempoService)
+	mockConsultaService := new(MockConsultaService)
 	appConfig := &config.AppSettings{}
 	tracingProvider, _, _ := tracing.NewTracingProvider(tracing.TracingConfig{
 		ZipkinURL:   "http://localhost:9411/api/v2/spans",
 		ServiceName: "test-service",})
 
-	useCase := NewGetCepUseCase(appConfig, mockViaCepService, mockTempoService, tracingProvider)
+	useCase := NewGetConsultaUseCase(appConfig, mockConsultaService, tracingProvider)
 
-	cep := "00000-000"
-	mockViaCepService.On("GetCep", mock.Anything, cep).Return(entities.ViaCepDto{}, errors.New("cep not found"))
+	cep := entities.CepRequestDto{Cep: "00000000"}
+	mockConsultaService.On("GetTempo", mock.Anything, cep).Return(entities.TempoResponseDto{}, errors.New("cep not found"))
 
 	// Act
 	_, err := useCase.GetTempoPorCep(context.Background(), cep)
@@ -86,5 +74,5 @@ func TestGetTempo_CepNotFount(t *testing.T) {
 	customErr := err.(*entities.CustomErrors)
 	require.Equal(t, 404, customErr.Code)
 	require.Equal(t, "can not find zipcode", customErr.Message)
-	mockViaCepService.AssertCalled(t, "GetCep", mock.Anything, cep)
+	mockConsultaService.AssertCalled(t, "GetTempo", mock.Anything, cep)
 }

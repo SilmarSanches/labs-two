@@ -35,7 +35,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/entities.CepRequestDto"
+                            "$ref": "#/definitions/labs-two-service-a_internal_entities.CepRequestDto"
                         }
                     }
                 ],
@@ -43,19 +43,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/entities.ViaCepDto"
+                            "$ref": "#/definitions/labs-two-service-a_internal_entities.TempoResponseDto"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/entities.CustomErrors"
+                            "$ref": "#/definitions/labs-two-service-a_internal_entities.CustomErrors"
                         }
                     },
                     "422": {
                         "description": "Invalid Zipcode",
                         "schema": {
-                            "$ref": "#/definitions/entities.CustomErrors"
+                            "$ref": "#/definitions/labs-two-service-a_internal_entities.CustomErrors"
                         }
                     }
                 }
@@ -63,7 +63,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "entities.CepRequestDto": {
+        "labs-two-service-a_internal_entities.CepRequestDto": {
             "type": "object",
             "properties": {
                 "cep": {
@@ -71,7 +71,7 @@ const docTemplate = `{
                 }
             }
         },
-        "entities.CustomErrors": {
+        "labs-two-service-a_internal_entities.CustomErrors": {
             "type": "object",
             "properties": {
                 "code": {
@@ -82,47 +82,20 @@ const docTemplate = `{
                 }
             }
         },
-        "entities.ViaCepDto": {
+        "labs-two-service-a_internal_entities.TempoResponseDto": {
             "type": "object",
             "properties": {
-                "bairro": {
+                "city": {
                     "type": "string"
                 },
-                "cep": {
-                    "type": "string"
+                "temp_C": {
+                    "type": "number"
                 },
-                "complemento": {
-                    "type": "string"
+                "temp_F": {
+                    "type": "number"
                 },
-                "ddd": {
-                    "type": "string"
-                },
-                "estado": {
-                    "type": "string"
-                },
-                "gia": {
-                    "type": "string"
-                },
-                "ibge": {
-                    "type": "string"
-                },
-                "localidade": {
-                    "type": "string"
-                },
-                "logradouro": {
-                    "type": "string"
-                },
-                "regiao": {
-                    "type": "string"
-                },
-                "siafi": {
-                    "type": "string"
-                },
-                "uf": {
-                    "type": "string"
-                },
-                "unidade": {
-                    "type": "string"
+                "temp_K": {
+                    "type": "number"
                 }
             }
         }

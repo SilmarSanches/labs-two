@@ -19,14 +19,9 @@ var ProviderHttpClient = wire.NewSet(
 	services.NewHttpClient,
 )
 
-var ProviderCep = wire.NewSet(
-	services.NewServiceCep,
-	wire.Bind(new(services.ServiceCepInterface), new(*services.ServiceCep)),
-)
-
-var ProviderTempo = wire.NewSet(
-	services.NewServiceTempo,
-	wire.Bind(new(services.ServiceTempoInterface), new(*services.ServiceTempo)),
+var ProviderConsulta = wire.NewSet(
+	services.NewServiceConsulta,
+	wire.Bind(new(services.ServiceConsultaInterface), new(*services.ServiceConsulta)),
 )
 
 var ProviderTracingForHandler = wire.NewSet(
@@ -42,18 +37,17 @@ var ProviderTracingWithCleanup = wire.NewSet(
 var ProviderGlobal = wire.NewSet(
 	ProviderHttpClient,
 	ProviderConfig,
-	ProviderTempo,
-	ProviderCep,
+	ProviderConsulta,
 	ProviderTracingForHandler,
 )
 
 var ProviderUseCase = wire.NewSet(
-	usecases.NewGetCepUseCase,
-	wire.Bind(new(usecases.GetCepUseCaseInterface), new(*usecases.GetCepUseCase)),
+	usecases.NewGetConsultaUseCase,
+	wire.Bind(new(usecases.GetConsultaUseCaseInterface), new(*usecases.GetConsultaUseCase)),
 )
 
 var ProviderHandler = wire.NewSet(
-	web.NewGetCepHandler,
+	web.NewGetConsultaHandler,
 )
 
 func NewConfig() *config.AppSettings {
@@ -61,14 +55,14 @@ func NewConfig() *config.AppSettings {
 	return &config.AppSettings{}
 }
 
-func NewGetCepUseCase() *usecases.GetCepUseCase {
+func NewGetConsultaUseCase() *usecases.GetConsultaUseCase {
 	wire.Build(ProviderGlobal, ProviderUseCase)
-	return &usecases.GetCepUseCase{}
+	return &usecases.GetConsultaUseCase{}
 }
 
-func NewGetCepHandler() *web.GetCepHandler {
+func NewGetConsultaHandler() *web.GetConsultaHandler {
 	wire.Build(ProviderGlobal, ProviderUseCase, ProviderHandler)
-	return &web.GetCepHandler{}
+	return &web.GetConsultaHandler{}
 }
 
 func InitializeTracing() (*tracing.TracingProvider, func()) {

@@ -10,19 +10,19 @@ import (
 	"net/http"
 )
 
-type GetCepHandler struct {
-	config              *config.AppSettings
-	GetCepUseCase       usecases.GetCepUseCaseInterface
-	ServiceCepInterface services.ServiceCepInterface
-	tracingProvider     *tracing.TracingProvider
+type GetConsultaHandler struct {
+	config                   *config.AppSettings
+	GetCepUseCase            usecases.GetConsultaUseCaseInterface
+	ServiceConsultaInterface services.ServiceConsultaInterface
+	tracingProvider          *tracing.TracingProvider
 }
 
-func NewGetCepHandler(appConfig *config.AppSettings, getCepUseCase usecases.GetCepUseCaseInterface, serviceCep services.ServiceCepInterface, tracingProvider *tracing.TracingProvider) *GetCepHandler {
-	return &GetCepHandler{
-		config:              appConfig,
-		GetCepUseCase:       getCepUseCase,
-		ServiceCepInterface: serviceCep,
-		tracingProvider:     tracingProvider,
+func NewGetConsultaHandler(appConfig *config.AppSettings, getConsultaUseCase usecases.GetConsultaUseCaseInterface, serviceConsulta services.ServiceConsultaInterface, tracingProvider *tracing.TracingProvider) *GetConsultaHandler {
+	return &GetConsultaHandler{
+		config:                   appConfig,
+		GetCepUseCase:            getConsultaUseCase,
+		ServiceConsultaInterface: serviceConsulta,
+		tracingProvider:          tracingProvider,
 	}
 }
 
@@ -33,11 +33,11 @@ func NewGetCepHandler(appConfig *config.AppSettings, getCepUseCase usecases.GetC
 // @Accept json
 // @Produce json
 // @Param request body entities.CepRequestDto true "CEP Request"
-// @Success 200 {object} entities.ViaCepDto "OK"
+// @Success 200 {object} entities.TempoResponseDto "OK"
 // @Failure 404 {object} entities.CustomErrors "Not Found"
 // @Failure 422 {object} entities.CustomErrors "Invalid Zipcode"
 // @Router /consulta-cep [post]
-func (h *GetCepHandler) HandleLabsTwo(w http.ResponseWriter, r *http.Request) {
+func (h *GetConsultaHandler) HandleLabsTwo(w http.ResponseWriter, r *http.Request) {
 	ctx, span := h.tracingProvider.Tracer.Start(r.Context(), "Consulta CEP")
 	defer span.End()
 
@@ -48,7 +48,7 @@ func (h *GetCepHandler) HandleLabsTwo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.GetCepUseCase.GetTempoPorCep(ctx, req.Cep)
+	response, err := h.GetCepUseCase.GetTempoPorCep(ctx, req)
 	if err != nil {
 		customErr, ok := err.(*entities.CustomErrors)
 		if ok {

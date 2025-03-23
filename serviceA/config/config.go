@@ -4,8 +4,7 @@ import "github.com/spf13/viper"
 
 type AppSettings struct {
 	Port        string
-	UrlCep      string
-	UrlTempo    string
+	UrlConsulta string
 	UrlZipkin   string
 	ServiceName string
 }
@@ -31,16 +30,14 @@ func LoadConfig() (*AppSettings, error) {
 	}
 
 	viper.SetDefault("PORT", "")
-	viper.SetDefault("URL_CEP", "")
-	viper.SetDefault("URL_TEMPO", "")
+	viper.SetDefault("URL_CONSULTA", "")
 	viper.SetDefault("URL_ZIPKIN", "")
 	viper.SetDefault("SERVICE_NAME", "")
 
 	appConfig := &AppSettings{
-		Port:      viper.GetString("PORT"),
-		UrlCep:    viper.GetString("URL_CEP"),
-		UrlTempo:  viper.GetString("URL_TEMPO"),
-		UrlZipkin: viper.GetString("URL_ZIPKIN"),
+		Port:        viper.GetString("PORT"),
+		UrlConsulta: viper.GetString("URL_CONSULTA"),
+		UrlZipkin:   viper.GetString("URL_ZIPKIN"),
 		ServiceName: viper.GetString("SERVICE_NAME"),
 	}
 

@@ -12,92 +12,73 @@ import (
 	"log"
 	"net/http"
 	"time"
-
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/propagation"
 )
 
-type ServiceTempoInterface interface {
-	GetTempo(ctx context.Context, location string) (entities.TempoResponseDto, error)
+type ServiceConsultaInterface interface {
+	GetTempo(ctx context.Context, cep entities.CepRequestDto) (entities.TempoResponseDto, error)
 }
 
-type ServiceTempo struct {
+type ServiceConsulta struct {
 	HttpClient HttpClient
 	appConfig  *config.AppSettings
 }
 
-func NewServiceTempo(httpClient HttpClient, appConfig *config.AppSettings) *ServiceTempo {
-	return &ServiceTempo{
+func NewServiceConsulta(httpClient HttpClient, appConfig *config.AppSettings) *ServiceConsulta {
+	return &ServiceConsulta{
 		HttpClient: httpClient,
 		appConfig:  appConfig,
 	}
 }
 
-func (s *ServiceTempo) GetTempo(ctx context.Context, location string) (entities.TempoResponseDto, error) {
+func (s *ServiceConsulta) GetTempo(ctx context.Context, cep entities.CepRequestDto) (entities.TempoResponseDto, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	url := fmt.Sprintf("%s/consulta-tempo", s.appConfig.UrlTempo)
+	url := fmt.Sprintf("%s/consulta-tempo", s.appConfig.UrlConsulta)
 	log.Println("url:", url)
 
-	tempo := entities.TempoRequestDto{
-		Location: location,
+	body, err := json.Marshal(cep)
+	if err != nil {
+		return entities.TempoResponseDto{}, fmt.Errorf("erro ao serializar o objeto cep: %w", err)
 	}
 
-	tempoJSON, err := json.Marshal(tempo)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewBuffer(body))
 	if err != nil {
-		log.Println("erro ao serializar objeto tempo:", err)
 		return entities.TempoResponseDto{}, err
 	}
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewBuffer(tempoJSON))
-	if err != nil {
-		log.Println("erro ao criar requisição HTTP:", err)
-		return entities.TempoResponseDto{}, err
-	}
-
-	otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(req.Header))
 
 	res, err := s.HttpClient.Do(req)
 	if err != nil {
 		if errors.Is(err, context.DeadlineExceeded) {
-			log.Println("timeout de 5s excedido ao consultar o serviço ConsultaTempo:", err)
-			return entities.TempoResponseDto{}, fmt.Errorf("timeout de 5s excedido ao consultar o serviço ConsultaTempo: %v", err)
+			return entities.TempoResponseDto{}, fmt.Errorf("timeout de 5s excedido ao consultar o serviço ViaCep: %v", err)
 		}
 	}
 
 	if res == nil {
-		log.Println("resposta nula ao consultar o tempo")
-		if err != nil {
-			log.Println("erro ao consultar o serviço tempo:", err)
-		}
-		return entities.TempoResponseDto{}, errors.New("resposta nula ao consultar o tempo")
+		return entities.TempoResponseDto{}, errors.New("resposta nula ao consultar o viacep")
 	}
 
 	if res.Body != nil {
 		defer func(Body io.ReadCloser) {
 			err := Body.Close()
 			if err != nil {
-				fmt.Printf("erro ao fechar o corpo da resposta consultaTempo: %v", err)
+				fmt.Printf("erro ao fechar o corpo da resposta: %v", err)
 			}
 		}(res.Body)
 	}
 
 	if res.StatusCode != http.StatusOK {
-		log.Println("erro ao consultar o serviço tempo:", res.StatusCode)
-		return entities.TempoResponseDto{}, fmt.Errorf("erro ao consultar o serviço tempo: %d", res.StatusCode)
+		return entities.TempoResponseDto{}, fmt.Errorf("erro ao consultar o tempo: %d", res.StatusCode)
 	}
 
 	var data entities.TempoResponseDto
 	err = json.NewDecoder(res.Body).Decode(&data)
 	if err != nil {
-		log.Println("erro ao decodificar resposta JSON do servicoTempo:", err)
-		return entities.TempoResponseDto{}, fmt.Errorf("erro ao decodificar resposta JSON do servicoTempo: %w", err)
+		return entities.TempoResponseDto{}, fmt.Errorf("erro ao decodificar resposta JSON: %w", err)
 	}
 
 	if data.City == "" {
-		log.Println("Location não encontrado:", location)
-		return entities.TempoResponseDto{}, fmt.Errorf("location não encontrado: %s", location)
+		return entities.TempoResponseDto{}, fmt.Errorf("City não encontrado: %s", cep)
 	}
 
 	return data, nil

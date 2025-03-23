@@ -15,10 +15,6 @@ import (
 	"labs-two-service-a/internal/usecases"
 )
 
-import (
-	_ "labs-two-service-a/docs"
-)
-
 // Injectors from wire.go:
 
 func NewConfig() *config.AppSettings {
@@ -26,27 +22,25 @@ func NewConfig() *config.AppSettings {
 	return appSettings
 }
 
-func NewGetCepUseCase() *usecases.GetCepUseCase {
+func NewGetConsultaUseCase() *usecases.GetConsultaUseCase {
 	appSettings := config.ProvideConfig()
 	httpClient := services.NewHttpClient()
-	serviceCep := services.NewServiceCep(httpClient, appSettings)
-	serviceTempo := services.NewServiceTempo(httpClient, appSettings)
+	serviceConsulta := services.NewServiceConsulta(httpClient, appSettings)
 	tracingConfig := tracing.ProvideTracingConfig(appSettings)
 	tracingProvider := tracing.ProvideTracingProvider(tracingConfig)
-	getCepUseCase := usecases.NewGetCepUseCase(appSettings, serviceCep, serviceTempo, tracingProvider)
-	return getCepUseCase
+	getConsultaUseCase := usecases.NewGetConsultaUseCase(appSettings, serviceConsulta, tracingProvider)
+	return getConsultaUseCase
 }
 
-func NewGetCepHandler() *web.GetCepHandler {
+func NewGetConsultaHandler() *web.GetConsultaHandler {
 	appSettings := config.ProvideConfig()
 	httpClient := services.NewHttpClient()
-	serviceCep := services.NewServiceCep(httpClient, appSettings)
-	serviceTempo := services.NewServiceTempo(httpClient, appSettings)
+	serviceConsulta := services.NewServiceConsulta(httpClient, appSettings)
 	tracingConfig := tracing.ProvideTracingConfig(appSettings)
 	tracingProvider := tracing.ProvideTracingProvider(tracingConfig)
-	getCepUseCase := usecases.NewGetCepUseCase(appSettings, serviceCep, serviceTempo, tracingProvider)
-	getCepHandler := web.NewGetCepHandler(appSettings, getCepUseCase, serviceCep, tracingProvider)
-	return getCepHandler
+	getConsultaUseCase := usecases.NewGetConsultaUseCase(appSettings, serviceConsulta, tracingProvider)
+	getConsultaHandler := web.NewGetConsultaHandler(appSettings, getConsultaUseCase, serviceConsulta, tracingProvider)
+	return getConsultaHandler
 }
 
 func InitializeTracing() (*tracing.TracingProvider, func()) {
@@ -64,9 +58,7 @@ var ProviderConfig = wire.NewSet(config.ProvideConfig)
 
 var ProviderHttpClient = wire.NewSet(services.NewHttpClient)
 
-var ProviderCep = wire.NewSet(services.NewServiceCep, wire.Bind(new(services.ServiceCepInterface), new(*services.ServiceCep)))
-
-var ProviderTempo = wire.NewSet(services.NewServiceTempo, wire.Bind(new(services.ServiceTempoInterface), new(*services.ServiceTempo)))
+var ProviderConsulta = wire.NewSet(services.NewServiceConsulta, wire.Bind(new(services.ServiceConsultaInterface), new(*services.ServiceConsulta)))
 
 var ProviderTracingForHandler = wire.NewSet(tracing.ProvideTracingConfig, tracing.ProvideTracingProvider)
 
@@ -75,11 +67,10 @@ var ProviderTracingWithCleanup = wire.NewSet(tracing.ProvideTracingConfig, traci
 var ProviderGlobal = wire.NewSet(
 	ProviderHttpClient,
 	ProviderConfig,
-	ProviderTempo,
-	ProviderCep,
+	ProviderConsulta,
 	ProviderTracingForHandler,
 )
 
-var ProviderUseCase = wire.NewSet(usecases.NewGetCepUseCase, wire.Bind(new(usecases.GetCepUseCaseInterface), new(*usecases.GetCepUseCase)))
+var ProviderUseCase = wire.NewSet(usecases.NewGetConsultaUseCase, wire.Bind(new(usecases.GetConsultaUseCaseInterface), new(*usecases.GetConsultaUseCase)))
 
-var ProviderHandler = wire.NewSet(web.NewGetCepHandler)
+var ProviderHandler = wire.NewSet(web.NewGetConsultaHandler)

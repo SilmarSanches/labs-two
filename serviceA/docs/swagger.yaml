@@ -1,45 +1,27 @@
 basePath: /
 definitions:
-  entities.CepRequestDto:
+  labs-two-service-a_internal_entities.CepRequestDto:
     properties:
       cep:
         type: string
     type: object
-  entities.CustomErrors:
+  labs-two-service-a_internal_entities.CustomErrors:
     properties:
       code:
         type: integer
       message:
         type: string
     type: object
-  entities.ViaCepDto:
+  labs-two-service-a_internal_entities.TempoResponseDto:
     properties:
-      bairro:
+      city:
         type: string
-      cep:
-        type: string
-      complemento:
-        type: string
-      ddd:
-        type: string
-      estado:
-        type: string
-      gia:
-        type: string
-      ibge:
-        type: string
-      localidade:
-        type: string
-      logradouro:
-        type: string
-      regiao:
-        type: string
-      siafi:
-        type: string
-      uf:
-        type: string
-      unidade:
-        type: string
+      temp_C:
+        type: number
+      temp_F:
+        type: number
+      temp_K:
+        type: number
     type: object
 info:
   contact: {}
@@ -58,22 +40,22 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/entities.CepRequestDto'
+          $ref: '#/definitions/labs-two-service-a_internal_entities.CepRequestDto'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/entities.ViaCepDto'
+            $ref: '#/definitions/labs-two-service-a_internal_entities.TempoResponseDto'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/entities.CustomErrors'
+            $ref: '#/definitions/labs-two-service-a_internal_entities.CustomErrors'
         "422":
           description: Invalid Zipcode
           schema:
-            $ref: '#/definitions/entities.CustomErrors'
+            $ref: '#/definitions/labs-two-service-a_internal_entities.CustomErrors'
       summary: Consulta CEP
       tags:
       - Labs-Two

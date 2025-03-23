@@ -11,8 +11,7 @@ services:
       - app_network
     environment:
       - PORT=8080
-      - URL_CEP=https://viacep.com.br/ws
-      - URL_TEMPO=http://serviceb:8081
+      - URL_CONSULTA=http://serviceb:8081
       - URL_ZIPKIN=http://zipkin:9411/api/v2/spans
       - SERVICE_NAME=service-a
 
