@@ -8,6 +8,7 @@ require (
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.10.0
 	github.com/swaggo/http-swagger v1.3.4
+	github.com/swaggo/swag v1.16.4
 	go.opentelemetry.io/otel v1.35.0
 	go.opentelemetry.io/otel/exporters/zipkin v1.35.0
 	go.opentelemetry.io/otel/sdk v1.35.0
@@ -42,7 +43,6 @@ require (
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/swaggo/files v0.0.0-20220610200504-28940afbdbfe // indirect
-	github.com/swaggo/swag v1.16.4 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/otel/metric v1.35.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
