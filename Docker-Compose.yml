@@ -2,9 +2,9 @@ services:
   servicea:
     image: myapp/servicea:latest 
     build: 
-      context: ./servicea
+      context: ./serviceA
       dockerfile: Dockerfile
-    container_name: servicea
+    container_name: serviceA
     ports:
       - "8080:8080"
     networks:
@@ -18,9 +18,9 @@ services:
   serviceb:
     image: myapp/serviceb:latest 
     build: 
-      context: ./serviceb
+      context: ./serviceB
       dockerfile: Dockerfile
-    container_name: serviceb
+    container_name: serviceB
     ports:
       - "8081:8081"
     networks:
